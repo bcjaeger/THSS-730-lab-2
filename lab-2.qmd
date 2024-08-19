@@ -7,6 +7,7 @@ format:
     code-fold: true
     toc: true
     df-print: paged
+    embed-resources: true
 ---
 
 # Binomial distribution
@@ -25,7 +26,7 @@ If $X \sim \text{Binomial}(n, p)$:
 
 ## Problem 1
 
-Suppose we have a sample of five phlebotomists who were exposed to Hepatitis B via a needlestick accident. Suppose that it is reasonable to assume a health worker exposed to Hepatitis B via needlestick has a 30% chance of developing the disease. Let \(X\) represent how many of the five phlebotomists develop Hepatitis B.
+Suppose we have a sample of five phlebotomists who were exposed to Hepatitis B via a needlestick accident. Suppose that it is reasonable to assume a health worker exposed to Hepatitis B via needlestick has a 30% chance of developing the disease. Let $X$ represent how many of the five phlebotomists develop Hepatitis B.
 
 ```{r}
 
@@ -177,7 +178,9 @@ ggplot(data_gg, aes(x = x, y = cdf)) +
   labs(title = "Cumulative Distribution Function (CDF) of X ~ Binomial(10, 0.2)",
        x = "Number of Successes (X)",
        y = "Cumulative Probability") +
-  theme_minimal()
+  theme_minimal() + 
+  scale_x_continuous(breaks = x_values) + 
+  theme(panel.grid.minor.x = element_blank())
 
 ```
 
@@ -201,15 +204,14 @@ htn
 
 We can use what we learned in Lab \#1 to calculate the frequency distribution and empirical CDF and plot the frequency distribution.
 
-```{r}
+```{r, message=FALSE}
 
-# Calculate frequency distribution
-freq_dist <- as.data.frame(table(htn$num_control))
+library(dplyr, quietly = TRUE)
 
-names(freq_dist) <- c("num_control", "Frequency")
-
-# Calculate percentage
-freq_dist$Percent <- (freq_dist$Frequency / sum(freq_dist$Frequency)) * 100
+freq_dist <- htn %>% 
+  count(num_control) %>% 
+  mutate(p = n / sum(n) * 100) %>% 
+  rename(Percent = p)
 
 # Plot frequency distribution
 ggplot(freq_dist) +
@@ -240,14 +242,15 @@ ggplot(cdf_data, aes(x = num_control, y = cum_pct)) +
   labs(title = "Empirical CDF",
        x = "Number Brought Under Control",
        y = "Percent") +
-  scale_y_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_y_continuous(breaks = seq(0, 100, by = 10),
+                     labels = paste0(seq(0, 100, by = 10), '%')) +
   theme_minimal()
 
 
 ```
 
 
-If we want to create a needle plot for the frequency distribution, we first need to prepare the data similarly.
+If we want to create a needle plot for the frequency distribution, we can re-use the `freq_dist` data that we created above.
 
 ```{r}
 
@@ -273,11 +276,11 @@ where:
 
 - $k = 0, 1, 2, \dots$
 
-- $X$is the number of events occurring in time period $t$
+- $X$ is the number of events occurring in time period $t$
 
-- $\lambda$is the expected number of events per unit time
+- $\lambda$ is the expected number of events per unit time
 
-- $\mu = \lambda t$is the expected number of events in the time period $t$
+- $\mu = \lambda t$ is the expected number of events in the time period $t$
 
 ## Properties of the Poisson Distribution
 
